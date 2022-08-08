@@ -9,32 +9,49 @@ using System.Threading.Tasks;
 
 namespace MyBoards.Entities
 {
-    public class WorkItem
+    public class Epic : WorkItem
     {
-        //[Key] this is a pointer to primary key to the property below.
-        public int Id { get; set; }
-        public string Area { get; set; }
-        public string IterationPath { get; set; }
-        public int Priority { get; set; }
         //Epic
         public DateTime? StartDate { get; set; }
-       // [Precision(3)]
+        // [Precision(3)]
         public DateTime? EndDate { get; set; }
+    }
+
+    public class Issue : WorkItem
+    {
         //Issue
         public decimal Efford { get; set; }
+    }
+
+    public class Task : WorkItem
+    {
         //Task
         public string Activity { get; set; }
         public decimal RemaininWork { get; set; }
-        public string Type { get; set; }
+    }
+    public abstract class WorkItem
+    {
+        //[Key] this is a pointer to primary key to the property below.
+        public int Id { get; set; }
 
+        public string Area { get; set; }
+
+        public string IterationPath { get; set; }
+
+        public int Priority { get; set; }
+        
         public List<Comment> Comments { get; set; } = new List<Comment>();
 
         public User Author { get; set; }
 
         public Guid AuthorId { get; set; }
+
         public List<Tag> Tags { get; set; }
+
         public WorkItemState State { get; set; }
+
         public int StateId { get; set; }
+
 
     }
 }
