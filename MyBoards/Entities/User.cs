@@ -13,5 +13,7 @@ namespace MyBoards.Entities
         public string LastName { get; set; }
         public string Email { get; set; }
         public Address Adress { get; set; }
+
+        public List<WorkItem> WorkItems { get; set; } = new List<WorkItem>();
     }
 }
