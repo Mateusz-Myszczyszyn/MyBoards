@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,13 +19,13 @@ namespace MyBoards.Entities
         public int Priority { get; set; }
         //Epic
         public DateTime? StartDate { get; set; }
+       // [Precision(3)]
         public DateTime? EndDate { get; set; }
         //Issue
         public decimal Efford { get; set; }
         //Task
         public string Activity { get; set; }
         public decimal RemaininWork { get; set; }
-
         public string Type { get; set; }
     }
 }
