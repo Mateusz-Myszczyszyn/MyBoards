@@ -15,6 +15,11 @@ namespace MyBoards.Entities
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Tag> Tags { get; set; }
 
+       /* protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<User>()
+                .HasKey(x => new { x.Email, x.LastName });
+        }*///this is a primary key combined with two keys.
         public MyBoardsContext(DbContextOptions<MyBoardsContext> options) : base(options)
         {
 
