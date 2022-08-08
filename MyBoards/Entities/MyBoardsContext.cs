@@ -14,6 +14,7 @@ namespace MyBoards.Entities
         public DbSet<User> Users { get; set; }
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Tag> Tags { get; set; }
+        public DbSet<WorkItemState> WorkItemStates { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
          {
@@ -21,6 +22,10 @@ namespace MyBoards.Entities
                 .HasKey(x => new { x.Email, x.LastName });*///this is making a primary key combined of two keys
             modelBuilder.Entity<WorkItem>(eb =>
             {
+                eb.HasOne(wi => wi.State)
+                .WithMany()
+                .HasForeignKey(wi => wi.StateId);
+
                 eb.Property(wi => wi.State).IsRequired();
                 eb.Property(wi => wi.Area).HasColumnType("varchar(200)");
                 eb.Property(wi => wi.IterationPath).HasColumnName("Iteration_Path");
@@ -29,6 +34,7 @@ namespace MyBoards.Entities
                 eb.Property(wi => wi.Activity).HasMaxLength(200);
                 eb.Property(wi => wi.RemaininWork).HasPrecision(14, 2);
                 eb.Property(wi => wi.Priority).HasDefaultValue(1);
+
                 eb.HasMany(wi => wi.Comments)
                 .WithOne(wi => wi.WorkItem)
                 .HasForeignKey(wi => wi.WorkItemId);
@@ -65,6 +71,11 @@ namespace MyBoards.Entities
                 .HasOne(u => u.Adress)
                 .WithOne(u => u.User)
                 .HasForeignKey<Address>(a => a.UserId);
+
+            modelBuilder.Entity<WorkItemState>(wis=>
+                wis.Property(x => x.Value)
+                .IsRequired()
+                .HasMaxLength(50));
 
         }
         public MyBoardsContext(DbContextOptions<MyBoardsContext> options) : base(options)
