@@ -39,13 +39,17 @@ namespace MyBoards.Entities
                 .Property(wi => wi.Efford)
                 .HasColumnType("decimal(5,2)");
 
+            modelBuilder.Entity<WorkItemState>(wis =>
+               wis.Property(x => x.Value)
+               .IsRequired()
+               .HasMaxLength(50));
+
             modelBuilder.Entity<WorkItem>(eb =>
             {
                 eb.HasOne(wi => wi.State)
                 .WithMany()
                 .HasForeignKey(wi => wi.StateId);
 
-                eb.Property(wi => wi.State).IsRequired();
                 eb.Property(wi => wi.Area).HasColumnType("varchar(200)");
                 eb.Property(wi => wi.IterationPath).HasColumnName("Iteration_Path");
                 eb.Property(wi => wi.Priority).HasDefaultValue(1);
@@ -72,26 +76,18 @@ namespace MyBoards.Entities
                         wi.HasKey(x => new { x.TagId, x.WorkItemId });
                         wi.Property(x => x.PublicationDate).HasDefaultValueSql("getutcdate()");
                     }
-
                     ) ;
             });
 
             modelBuilder.Entity<Comment>(eb =>
             {
                 eb.Property(c => c.CreatedDate).HasDefaultValueSql("getutcdate()");
-                eb.Property(c => c.UpdatedDate).ValueGeneratedOnUpdate();
             });
 
             modelBuilder.Entity<User>()
                 .HasOne(u => u.Adress)
                 .WithOne(u => u.User)
                 .HasForeignKey<Address>(a => a.UserId);
-
-            modelBuilder.Entity<WorkItemState>(wis=>
-                wis.Property(x => x.Value)
-                .IsRequired()
-                .HasMaxLength(50));
-
         }
         public MyBoardsContext(DbContextOptions<MyBoardsContext> options) : base(options)
         {
