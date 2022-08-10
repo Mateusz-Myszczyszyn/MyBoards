@@ -10,6 +10,7 @@ namespace MyBoards.Entities
     {
         public int Id { get; set; }
         public string Value { get; set; }
+
         //public virtual List<WorkItem> Workitems { get; set; }//not precisely needed
 
     }

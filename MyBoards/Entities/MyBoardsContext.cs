@@ -20,7 +20,7 @@ namespace MyBoards.Entities
         public DbSet<WorkItemState> WorkItemStates { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-         {
+        {
             /*modelBuilder.Entity<User>()
                 .HasKey(x => new { x.Email, x.LastName });*///this is making a primary key combined of two keys
             modelBuilder.Entity<Epic>()
@@ -67,7 +67,7 @@ namespace MyBoards.Entities
                 .UsingEntity<WorkItemHasTag>(
                     wi => wi.HasOne(wit => wit.Tag)
                     .WithMany()
-                    .HasForeignKey(wit=>wit.TagId),
+                    .HasForeignKey(wit => wit.TagId),
                     wi => wi.HasOne(wit => wit.WorkItem)
                     .WithMany()
                     .HasForeignKey(wit => wit.WorkItemId),
@@ -76,7 +76,7 @@ namespace MyBoards.Entities
                         wi.HasKey(x => new { x.TagId, x.WorkItemId });
                         wi.Property(x => x.PublicationDate).HasDefaultValueSql("getutcdate()");
                     }
-                    ) ;
+                    );
             });
 
             modelBuilder.Entity<Comment>(eb =>
@@ -93,10 +93,20 @@ namespace MyBoards.Entities
                 .HasOne(u => u.Adress)
                 .WithOne(u => u.User)
                 .HasForeignKey<Address>(a => a.UserId);
+
+
+            modelBuilder.Entity<WorkItemState>()
+                .HasData(new WorkItemState() { Id = 1, Value = "To Do" },
+                new WorkItemState() { Id = 2, Value = "Doing" },
+                new WorkItemState() { Id = 3, Value = "Done" });
         }
+
         public MyBoardsContext(DbContextOptions<MyBoardsContext> options) : base(options)
         {
 
         }
     }
+    
 }
+
+
