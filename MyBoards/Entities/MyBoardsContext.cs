@@ -32,7 +32,7 @@ namespace MyBoards.Entities
                 .HasMaxLength(200);
 
             modelBuilder.Entity<Task>()
-                .Property(wi => wi.RemaininWork)
+                .Property(wi => wi.RemainingWork)
                 .HasPrecision(14, 2);
 
             modelBuilder.Entity<Issue>()

@@ -27,7 +27,7 @@ namespace MyBoards.Entities
     {
         //Task
         public string Activity { get; set; }
-        public decimal RemaininWork { get; set; }
+        public decimal RemainingWork { get; set; }
     }
     public abstract class WorkItem
     {
