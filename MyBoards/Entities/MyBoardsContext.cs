@@ -18,6 +18,7 @@ namespace MyBoards.Entities
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Tag> Tags { get; set; }
         public DbSet<WorkItemState> WorkItemStates { get; set; }
+        public DbSet<WorkItemHasTag> WorkItemHasTags { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -84,9 +85,9 @@ namespace MyBoards.Entities
                 eb.Property(c => c.CreatedDate).HasDefaultValueSql("getutcdate()");
                 eb.Property(x => x.UpdatedDate).ValueGeneratedOnUpdate();
                 eb.HasOne(u => u.Author)
-                .WithMany(a => a.Comments)
-                .HasForeignKey(f => f.AuthorId)
-                .OnDelete(DeleteBehavior.NoAction);
+                    .WithMany(a => a.Comments)
+                    .HasForeignKey(f => f.AuthorId)
+                    .OnDelete(DeleteBehavior.ClientCascade);
             });
 
             modelBuilder.Entity<User>()
