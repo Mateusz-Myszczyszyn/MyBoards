@@ -90,7 +90,7 @@ namespace MyBoards.Entities
             });
 
             modelBuilder.Entity<User>()
-                .HasOne(u => u.Adress)
+                .HasOne(u => u.Address)
                 .WithOne(u => u.User)
                 .HasForeignKey<Address>(a => a.UserId);
 
