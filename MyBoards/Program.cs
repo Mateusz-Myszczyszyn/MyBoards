@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.Http.Json;
 using Microsoft.EntityFrameworkCore;
 using MyBoards.Entities;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +9,10 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.Configure<JsonOptions>(options =>
+{
+    options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+});
 
 builder.Services.AddDbContext<MyBoardsContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("MyBoardsDbConnection")));
 
@@ -35,7 +41,7 @@ if (!users.Any())
     {
         Email = "user1@test.com",
         FullName = "User One",
-        Adress = new Address()
+        Address = new Address()
         {
             City = "Warszawa",
             Street = "Szeroka"
@@ -46,7 +52,7 @@ if (!users.Any())
     {
         Email = "user2@test.com",
         FullName = "User Two",
-        Adress = new Address()
+        Address = new Address()
         {
             City = "Kraków",
             Street = "D³uga"
@@ -94,20 +100,31 @@ app.MapGet("data",async (MyBoardsContext db) =>
 
     return epicList;*/
 
-    var mostCommentUser = await db.Comments
-        .GroupBy(c => c.AuthorId)
-        .Select(g => new { g.Key, count = g.Count() })
-        .ToListAsync();
+     /*var mostCommentUser = await db.Comments
+         .GroupBy(c => c.AuthorId)
+         .Select(g => new { g.Key, count = g.Count() })
+         .ToListAsync();
 
-    var topAuthor = mostCommentUser.First(a => a.count == mostCommentUser.Max(acc => acc.count));
-    var userdetail = db.Users.First(u => u.Id == topAuthor.Key);
+     var topAuthor = mostCommentUser.First(a => a.count == mostCommentUser.Max(acc => acc.count));
+     var userdetail = db.Users.First(u => u.Id == topAuthor.Key);*/
 
-    return new { userdetail, commentCount = topAuthor.count };
+    // return new { userdetail, commentCount = topAuthor.count };
 
+    var user = await db.Users
+    .Include(u=>u.Comments).ThenInclude(wi=>wi.WorkItem)
+    .Include(a=>a.Address)
+    .FirstAsync(u => u.Id == Guid.Parse("C2377DEE-3B38-4089-CBE2-08DA10AB0E61"));
+    //var commentsquantity = await db.Comments
+    //.Where(c => c.AuthorId == user.Id)
+    //.ToListAsync();
+
+
+    
+    return user;
 
 });
 
-app.MapPost("post", async (MyBoardsContext db) =>
+app.MapPost("update", async (MyBoardsContext db) =>
 {
     var epic = await db.Epics.FirstAsync(e => e.Id == 1);
 
@@ -124,5 +141,38 @@ app.MapPost("post", async (MyBoardsContext db) =>
     
 
 });
+
+app.MapPost("create", async (MyBoardsContext db) =>
+{
+    /*Tag tagmvc = new Tag()
+    {
+        Value = "MVC"
+    };
+    Tag tagasp = new Tag()
+    {
+        Value = "ASP"
+    };
+
+    await db.Tags.AddRangeAsync(tagmvc,tagasp);
+    await db.SaveChangesAsync();*/
+
+    var address = new Address()
+    {
+        City = "Kraków",
+        Country = "Poland",
+        Street = "D³uga"
+    };
+
+    var user = new User()
+    {
+        Email = "adduser@test.com",
+        FullName = "Test User",
+        Address = address
+    };
+
+    await db.Users.AddAsync(user);
+    await db.SaveChangesAsync();
+});
+
 app.Run();
 
