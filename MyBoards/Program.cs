@@ -118,25 +118,27 @@ app.MapGet("data",async (MyBoardsContext db) =>
     //.Where(c => c.AuthorId == user.Id)
     //.ToListAsync();
 
-    var mincount = "85";
-    var states = await db.WorkItemStates
-    .FromSqlInterpolated($@"
-    SELECT wis.Id, wis.Value
-    FROM WorkItemStates wis
-    JOIN WorkItems wi on wi.StateId = wis.Id
-    GROUP BY wis.Id,wis.Value
-    HAVING COUNT(*) > {mincount}")
-    .ToListAsync();
+    /* var mincount = "85";
+     var states = await db.WorkItemStates
+     .FromSqlInterpolated($@"
+     SELECT wis.Id, wis.Value
+     FROM WorkItemStates wis
+     JOIN WorkItems wi on wi.StateId = wis.Id
+     GROUP BY wis.Id,wis.Value
+     HAVING COUNT(*) > {mincount}")
+     .ToListAsync();*/
 
-    await db.Database.ExecuteSqlRawAsync(@"
-    UPDATE Comments
-    SET UpdatedDate = GETDATE()
-    WHERE AuthorId = '4EBB526D-2196-41E1-CBDA-08DA10AB0E61'
-    ");
+    /* await db.Database.ExecuteSqlRawAsync(@"
+     UPDATE Comments
+     SET UpdatedDate = GETDATE()
+     WHERE AuthorId = '4EBB526D-2196-41E1-CBDA-08DA10AB0E61'
+     ");
 
-    var entries = db.ChangeTracker.Entries();
+     var entries = db.ChangeTracker.Entries();*/
 
-    return states;
+    var topAuthors = await db.ViewTopAuthors.ToListAsync();
+    return topAuthors;
+    
 
 });
 
