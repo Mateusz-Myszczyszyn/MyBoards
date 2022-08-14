@@ -100,27 +100,43 @@ app.MapGet("data",async (MyBoardsContext db) =>
 
     return epicList;*/
 
-     /*var mostCommentUser = await db.Comments
-         .GroupBy(c => c.AuthorId)
-         .Select(g => new { g.Key, count = g.Count() })
-         .ToListAsync();
+    /*var mostCommentUser = await db.Comments
+        .GroupBy(c => c.AuthorId)
+        .Select(g => new { g.Key, count = g.Count() })
+        .ToListAsync();
 
-     var topAuthor = mostCommentUser.First(a => a.count == mostCommentUser.Max(acc => acc.count));
-     var userdetail = db.Users.First(u => u.Id == topAuthor.Key);*/
+    var topAuthor = mostCommentUser.First(a => a.count == mostCommentUser.Max(acc => acc.count));
+    var userdetail = db.Users.First(u => u.Id == topAuthor.Key);*/
 
     // return new { userdetail, commentCount = topAuthor.count };
 
-    var user = await db.Users
-    .Include(u=>u.Comments).ThenInclude(wi=>wi.WorkItem)
-    .Include(a=>a.Address)
-    .FirstAsync(u => u.Id == Guid.Parse("C2377DEE-3B38-4089-CBE2-08DA10AB0E61"));
+    /* var user = await db.Users
+     .Include(u=>u.Comments).ThenInclude(wi=>wi.WorkItem)
+     .Include(a=>a.Address)
+     .FirstAsync(u => u.Id == Guid.Parse("C2377DEE-3B38-4089-CBE2-08DA10AB0E61"));*/
     //var commentsquantity = await db.Comments
     //.Where(c => c.AuthorId == user.Id)
     //.ToListAsync();
 
+    var mincount = "85";
+    var states = await db.WorkItemStates
+    .FromSqlInterpolated($@"
+    SELECT wis.Id, wis.Value
+    FROM WorkItemStates wis
+    JOIN WorkItems wi on wi.StateId = wis.Id
+    GROUP BY wis.Id,wis.Value
+    HAVING COUNT(*) > {mincount}")
+    .ToListAsync();
 
-    
-    return user;
+    await db.Database.ExecuteSqlRawAsync(@"
+    UPDATE Comments
+    SET UpdatedDate = GETDATE()
+    WHERE AuthorId = '4EBB526D-2196-41E1-CBDA-08DA10AB0E61'
+    ");
+
+    var entries = db.ChangeTracker.Entries();
+
+    return states;
 
 });
 
