@@ -136,8 +136,9 @@ app.MapGet("data",async (MyBoardsContext db) =>
 
      var entries = db.ChangeTracker.Entries();*/
 
-    var topAuthors = await db.ViewTopAuthors.ToListAsync();
-    return topAuthors;
+    //var topAuthors = await db.ViewTopAuthors.ToListAsync();
+    //return topAuthors;
+    var address = db.Addresses.Where(a => a.Coordinate.Longitude > 10);
     
 
 });
