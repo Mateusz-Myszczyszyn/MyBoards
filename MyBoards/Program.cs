@@ -11,10 +11,14 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.Configure<JsonOptions>(options =>
 {
+
     options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
 });
 
-builder.Services.AddDbContext<MyBoardsContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("MyBoardsDbConnection")));
+builder.Services.AddDbContext<MyBoardsContext>(
+    options => options
+    //.UseLazyLoadingProxies()
+    .UseSqlServer(builder.Configuration.GetConnectionString("MyBoardsDbConnection")));
 
 var app = builder.Build();
 
@@ -138,9 +142,17 @@ app.MapGet("data",async (MyBoardsContext db) =>
 
     //var topAuthors = await db.ViewTopAuthors.ToListAsync();
     //return topAuthors;
-    var address = db.Addresses.Where(a => a.Coordinate.Longitude > 10);
-    
+    //var address = await db.Addresses.Where(a => a.Coordinate.Longitude > 10).ToListAsync();
 
+    //var withAddress = true;
+
+    var user = await db.Users
+    .Include(x => x.Address)
+    .FirstAsync(u => u.Id == Guid.Parse("78CF834E-7724-4995-CBC4-08DA10AB0E61"));
+
+
+    return user;
+    
 });
 
 app.MapPost("update", async (MyBoardsContext db) =>
