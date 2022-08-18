@@ -197,6 +197,18 @@ app.MapGet("pagination", async (MyBoardsContext db) =>
         
         
 });
+app.MapGet("search", async (MyBoardsContext db) =>
+{
+    var user = await db.Users
+        .Include(u => u.Address)
+        .Include(c=>c.Comments)
+        .Where(u => u.Address.Country == "Albania")
+        .SelectMany(c => c.Comments)
+        .Select(c => c.Message)
+        .ToListAsync();
+
+    return user;
+});
 
 app.MapPost("update", async (MyBoardsContext db) =>
 {
