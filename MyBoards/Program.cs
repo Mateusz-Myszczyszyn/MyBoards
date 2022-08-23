@@ -1,8 +1,12 @@
 using Microsoft.AspNetCore.Http.Json;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyBoards;
 using MyBoards.Dto;
 using MyBoards.Entities;
+using MyBoards.Sieve;
+using Sieve.Models;
+using Sieve.Services;
 using System.Linq.Expressions;
 using System.Text.Json.Serialization;
 
@@ -10,9 +14,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddScoped<ISieveProcessor, ApplicationSieveProcessor>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.Configure<JsonOptions>(options =>
+builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options =>
 {
 
     options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
@@ -72,6 +77,33 @@ if (!users.Any())
     dbContext.SaveChanges();
 }
 
+app.MapPost("sieve", async ([FromBody] SieveModel query, ISieveProcessor sieveProcessor,MyBoardsContext db) =>
+{
+    var epics = db.Epics
+    .Include(a=>a.Author)
+    .AsQueryable();
+
+    var dtos = await sieveProcessor
+        .Apply(query, epics)
+        .Select(e=> new EpicDto()
+    {
+        Id = e.Id,
+        Area = e.Area,
+        Priority = e.Priority, 
+        StartDate = e.StartDate,    
+        AuthorFullName = e.Author.FullName
+    })
+    .ToListAsync();
+
+    var totalCount = await sieveProcessor
+        .Apply(query, epics, applyPagination: false,applySorting:false)
+        .CountAsync();
+
+    var result = new PagedResult<EpicDto>(dtos, totalCount, query.Page.Value, query.PageSize.Value);
+
+    return result;
+
+    });
 app.MapGet("data",async (MyBoardsContext db) =>
 {
     //var tags = db.Tags.ToList();
